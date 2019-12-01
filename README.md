@@ -1,2 +1,2 @@
-# k8s-pod-node-selector
-Enforce node selection for namespaces via Admission Controller Webhook
+# admission-webhook-server
+Custom API server providing endpoints for kubernetes admission controller webhook. 
