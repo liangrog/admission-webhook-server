@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "helper.fullname" . }}
+  labels:
+{{- include "helper.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  strategy:
+{{ toYaml .Values.strategy | indent 4 }}
+  selector:
+    matchLabels:
+{{- include "helper.labels" . | indent 6 }}
+  template:
+    metadata:
+      labels:
+{{- include "helper.labels" . | indent 8 }}
+    spec:
+      containers:
+      - name: {{ template "helper.fullname" . }}
+        image: "{{ .Values.image }}:{{ .Values.imageTag }}"
+        env:
+        {{- if .Values.basePathOverride }}
+        - name: BASE_PATH
+          value: {{ .Values.basePathOverride | quote }}
+        {{- end }}
+        {{- if .Values.podNodesSelectorPathOverride }}
+        - name: POD_NODES_SELECTOR_PATH
+          value: {{ .Values.podNodesSelectorPathOverride | quote }}
+        {{- end }}
+        - name: ENV_POD_NODES_SELECTOR_CONFIG
+          value: {{ .Values.podNodesSelectorConfig | quote}}
+        ports:
+        - name: https
+          containerPort: 8443
+        volumeMounts:
+        - name: tls
+          mountPath: /run/secrets/tls
+          readOnly: true
+      volumes:
+      - name: tls
+        secret:
+          secretName: {{ template "helper.fullname" . }}-tls

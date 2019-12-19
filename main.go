@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/liangrog/admission-webhook-server/pkg/admission/podnodesselector"
+	"github.com/liangrog/admission-webhook-server/pkg/utils"
 )
 
 // TLS secrets
@@ -36,7 +37,7 @@ func main() {
 	}
 
 	// Serve
-	log.Fatal(server.ListenAndServeTLS(certPath, keyPath))
+	log.Fatal(server.ListenAndServeTLS(cert, key))
 }
 
 // Register all admission handlers

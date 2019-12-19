@@ -1,0 +1,20 @@
+
+#nameOverride
+
+basePathOverride:
+podNodesSelectorPathOverride: 
+podNodesSelectorConfig:
+
+
+service:
+  name: mutate-webhook-server
+  #type: 
+  annotations: {}
+
+replicas: 1  
+
+strategy: 
+  type: RollingUpdate
+
+image: liangrog/admission-webhook-server
+imageTag: latest

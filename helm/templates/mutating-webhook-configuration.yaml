@@ -1,0 +1,24 @@
+---
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration 
+metadata:
+  name: {{ template "helper.fullname" . }}
+  labels:
+{{- include "helper.labels" . | indent 4 }}
+webhooks:
+- name: {{ template "helper.webhook-server-name" . }} 
+  clientConfig: 
+    service:
+      namespace: {{ .Release.Namespace }}
+      name: {{ template "helper.fullname" . }}
+      path: '/{{ default "mutate" .Values.basePathOverride }}/{{ default "pod-nodes-selector" .Values.podNodesSelectorPathOverride }}' 
+    caBundle: '{{ .Files.Get "ssl/ca.crt" | b64enc }}'
+  rules: 
+  - operations: 
+    - CREATE
+    apiGroups:
+    - ""
+    apiVersions:
+    - "*"
+    resources:
+    - pods

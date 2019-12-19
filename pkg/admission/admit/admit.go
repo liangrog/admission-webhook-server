@@ -53,7 +53,7 @@ func isKubeNamespace(ns string) bool {
 // doServeAdmitFunc parses the HTTP request for an admission controller webhook, and -- in case of a well-formed
 // request -- delegates the admission control logic to the given admitFunc. The response body is then returned as raw
 // bytes.
-func doServeAdmitFunc(w http.ResponseWriter, r *http.Request, adm admitFunc) ([]byte, error) {
+func doServeAdmitFunc(w http.ResponseWriter, r *http.Request, adm AdmitFunc) ([]byte, error) {
 	// Step 1: Request validation. Only handle POST requests with a body and json content type.
 
 	if r.Method != http.MethodPost {
@@ -126,7 +126,7 @@ func doServeAdmitFunc(w http.ResponseWriter, r *http.Request, adm admitFunc) ([]
 }
 
 // serveAdmitFunc is a wrapper around doServeAdmitFunc that adds error handling and logging.
-func serveAdmitFunc(w http.ResponseWriter, r *http.Request, adm admitFunc) {
+func serveAdmitFunc(w http.ResponseWriter, r *http.Request, adm AdmitFunc) {
 	log.Print("Handling webhook request ...")
 
 	var writeErr error
@@ -145,7 +145,7 @@ func serveAdmitFunc(w http.ResponseWriter, r *http.Request, adm admitFunc) {
 }
 
 // admitFuncHandler takes an admitFunc and wraps it into a http.Handler by means of calling serveAdmitFunc.
-func AdmitFuncHandler(adm admitFunc) http.Handler {
+func AdmitFuncHandler(adm AdmitFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		serveAdmitFunc(w, r, adm)
 	})

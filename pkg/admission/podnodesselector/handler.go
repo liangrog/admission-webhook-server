@@ -1,6 +1,7 @@
 package podnodesselector
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -24,7 +25,7 @@ const (
 	// The string format for each namespace follows https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/labels/labels.go
 	// Examples:
 	//   namespace:label-name=label-value,label-name=label-value;namespace:label-name=label-value
-	ENV_NAMESPACE_POD_NODES_SELECTOR_CONFIG = "NAMESPACE_POD_NODES_SELECTOR_CONFIG"
+	ENV_POD_NODES_SELECTOR_CONFIG = "POD_NODES_SELECTOR_CONFIG"
 
 	namespaceSeperator      = ";"
 	namespaceLabelSeperator = ":"
@@ -61,9 +62,13 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 		return nil, fmt.Errorf("could not deserialize pod object: %v", err)
 	}
 
-	var patches []patchOperation
+	var patches []admit.PatchOperation
 
-	selectors := getConfiguredSelectorMap()
+	selectors, err := getConfiguredSelectorMap()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	if selectors != nil {
 		if labelSet, ok := selectors[req.Namespace]; ok {
 			op := "replace"
@@ -76,7 +81,7 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 			}
 			podNodeSelectorLabels := labels.Merge(labelSet, labels.Set(pod.Spec.NodeSelector))
 
-			patches = append(patches, patchOperation{
+			patches = append(patches, admit.PatchOperation{
 				Op:    op,
 				Path:  "/spec/nodeselector",
 				Value: fmt.Sprintf("%s", podNodeSelectorLabels),
@@ -90,12 +95,12 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 // Get configuration map
 func getConfiguredSelectorMap() (map[string]labels.Set, error) {
 	// Don't process if no configuration is set
-	if len(os.Getenv(ENV_NAMESPACE_POD_NODES_SELECTOR_CONFIG)) == 0 {
-		return nil
+	if len(os.Getenv(ENV_POD_NODES_SELECTOR_CONFIG)) == 0 {
+		return nil, nil
 	}
 
-	selectors := make(map[string]map[string]string)
-	for _, ns := range strings.Split(os.Getenv(ENV_NAMESPACE_POD_NODES_CONFIG), namespaceSeperator) {
+	selectors := make(map[string]labels.Set)
+	for _, ns := range strings.Split(os.Getenv(ENV_POD_NODES_SELECTOR_CONFIG), namespaceSeperator) {
 		conf := strings.Split(ns, namespaceLabelSeperator)
 
 		// If no namespace name or label not set, move on
@@ -111,5 +116,5 @@ func getConfiguredSelectorMap() (map[string]labels.Set, error) {
 		selectors[conf[0]] = set
 	}
 
-	return selectors
+	return selectors, nil
 }
