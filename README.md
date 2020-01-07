@@ -37,7 +37,7 @@ The following table lists the configuration parameters for the helm chart.
 | nameOverride  | Override general resource name   |   |
 | basePathOverride  | Url base path   | mutate  | 
 | podNodesSelectorPathOverride  | Url sub path for podnodesselector  | pod-nodes-selector  |
-| podNodesSelectorConfig  | Confiruation for podnodesselector. The namespace and labels are set here following the format: namespace: key=label,key=label; namespace2: key=label. Multiple namespaces seperate by ";". Example: devel: node-role.kubernetes.io/development=true, beta.kubernetes.io/instance-type=t3.large  |   |
+| podNodesSelectorConfig  | Configuration for podnodesselector. The namespace and labels are set here following the format: namespace: key=label,key=label; namespace2: key=label. Multiple namespaces seperate by ";". Example: devel: node-role.kubernetes.io/development=true, beta.kubernetes.io/instance-type=t3.large  |   |
 | service.name  | Name of the service. It forms part of the ssl CN  | admission-webhook  |
 | service.annotations  | Anotation for the service  | {} |
 | replicas | Number of replicas  | 1  |
