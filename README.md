@@ -1,5 +1,5 @@
 # Admission Webhook Server
-API server providing Webhook endpoints for Kubernetes admission controller to mutate objects. 
+API server providing webhook endpoints for Kubernetes admission controller to mutate objects. 
 
 Currently it can handle mutating `nodeSelector` based on namespaces. This same functionality exists in standard Kubernetes cluster installation if enabled. However it's not enabled in EKS. 
 
@@ -8,9 +8,9 @@ The server can be easily extended by adding more handlers for different mutation
 The repo also includes a Helm chart for easy deployment to your Kubernetes cluster.
 
 ## Installation
-Firstly you need to determine what your SSL CN is. The CN follows the format of `[service name].[namespace].svc`. For example, the default service name is `admission-webhook` (It can be changed in helm value). You want to deploy to namespace tools. The CN will be `admission-webhook.tools.svc`. Below steps will use this CN for demo purpose.
+Firstly you need to determine what your SSL CN is. The self-signed ssl CN follows the format of `[service name].[namespace].svc`. For example, the default service name is `admission-webhook` (It can be changed in helm value). You want to deploy to namespace tools. The CN will be `admission-webhook.tools.svc`. Below steps will use this CN for demo purpose.
 
-Note: below example using Helm v3. However the chart is compatible with version older than v3.
+Note: below example using Helm v3. However the chart is compatible with helm version older than v3.
 
 ```sh
 $ git clone https://github.com/liangrog/admission-webhook-server
