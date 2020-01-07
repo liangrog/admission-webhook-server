@@ -19,6 +19,7 @@ spec:
       containers:
       - name: {{ template "helper.fullname" . }}
         image: "{{ .Values.image }}:{{ .Values.imageTag }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
         env:
         {{- if .Values.basePathOverride }}
         - name: BASE_PATH
@@ -28,7 +29,7 @@ spec:
         - name: POD_NODES_SELECTOR_PATH
           value: {{ .Values.podNodesSelectorPathOverride | quote }}
         {{- end }}
-        - name: ENV_POD_NODES_SELECTOR_CONFIG
+        - name: POD_NODES_SELECTOR_CONFIG
           value: {{ .Values.podNodesSelectorConfig | quote}}
         ports:
         - name: https

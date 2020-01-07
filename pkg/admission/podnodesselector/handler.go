@@ -1,3 +1,7 @@
+/**
+ * Mutate pod manifest field nodeSelector with proper key values so the pod can be scheduled to
+ * designate nodes.
+ */
 package podnodesselector
 
 import (
@@ -18,6 +22,9 @@ import (
 )
 
 const (
+	handlerName = "PodNodesSelector"
+
+	// Path for kube api server to call
 	ENV_POD_NODES_SELECTOR_PATH = "POD_NODES_SELECTOR_PATH"
 	podNodesSelectorPath        = "pod-nodes-selector"
 
@@ -35,8 +42,9 @@ var (
 	podResource = metav1.GroupVersionResource{Version: "v1", Resource: "pods"}
 )
 
-// Register handler
+// Register handler to server
 func Register(mux *http.ServeMux) {
+	// Sub path
 	pdsPath := filepath.Join(
 		admit.GetBasePath(),
 		utils.GetEnvVal(ENV_POD_NODES_SELECTOR_PATH, podNodesSelectorPath),
@@ -46,12 +54,14 @@ func Register(mux *http.ServeMux) {
 		pdsPath,
 		admit.AdmitFuncHandler(handler),
 	)
+
+	log.Printf("%s registered using path %s", handlerName, pdsPath)
 }
 
 // Handling pod node selector request
 func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 	if req.Resource != podResource {
-		log.Printf("expect resource to be %s", podResource)
+		log.Printf("Ignore admission request %s as it's not a pod resource", string(req.UID))
 		return nil, nil
 	}
 
@@ -62,8 +72,12 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 		return nil, fmt.Errorf("could not deserialize pod object: %v", err)
 	}
 
+	// Get the pod name for info
+	podName := strings.TrimSpace(pod.Name + " " + pod.GenerateName)
+
 	var patches []admit.PatchOperation
 
+	// Get configuration
 	selectors, err := getConfiguredSelectorMap()
 	if err != nil {
 		log.Fatal(err)
@@ -77,15 +91,22 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 			}
 
 			if labels.Conflicts(labelSet, labels.Set(pod.Spec.NodeSelector)) {
-				return patches, errors.New(fmt.Sprintf("pod node label selector conflicts with its namespace node label selector for pod %s", pod.Name))
+				return patches, errors.New(fmt.Sprintf("pod node label selector conflicts with its namespace node label selector for pod %s", podName))
 			}
+
 			podNodeSelectorLabels := labels.Merge(labelSet, labels.Set(pod.Spec.NodeSelector))
 
 			patches = append(patches, admit.PatchOperation{
 				Op:    op,
-				Path:  "/spec/nodeselector",
-				Value: fmt.Sprintf("%s", podNodeSelectorLabels),
+				Path:  "/spec/nodeSelector",
+				Value: podNodeSelectorLabels,
 			})
+
+			log.Printf("%s processed pod %s with selectors: %s",
+				handlerName,
+				podName,
+				fmt.Sprintf("%v", podNodeSelectorLabels),
+			)
 		}
 	}
 

@@ -28,6 +28,7 @@ func main() {
 
 	mux := http.NewServeMux()
 
+	log.Print("Registering handlers...")
 	registerAllHandlers(mux)
 
 	// Config server
@@ -37,6 +38,7 @@ func main() {
 	}
 
 	// Serve
+	log.Print("Starting admission webhook server...")
 	log.Fatal(server.ListenAndServeTLS(cert, key))
 }
 

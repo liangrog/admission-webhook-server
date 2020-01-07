@@ -1,3 +1,6 @@
+/**
+ * Admission mutation handler utility.
+ */
 package admit
 
 import (
@@ -113,6 +116,7 @@ func doServeAdmitFunc(w http.ResponseWriter, r *http.Request, adm AdmitFunc) ([]
 			w.WriteHeader(http.StatusInternalServerError)
 			return nil, fmt.Errorf("could not marshal JSON patch: %v", err)
 		}
+
 		admissionReviewResponse.Response.Allowed = true
 		admissionReviewResponse.Response.Patch = patchBytes
 	}
@@ -122,12 +126,13 @@ func doServeAdmitFunc(w http.ResponseWriter, r *http.Request, adm AdmitFunc) ([]
 	if err != nil {
 		return nil, fmt.Errorf("marshaling response: %v", err)
 	}
+
 	return bytes, nil
 }
 
 // serveAdmitFunc is a wrapper around doServeAdmitFunc that adds error handling and logging.
 func serveAdmitFunc(w http.ResponseWriter, r *http.Request, adm AdmitFunc) {
-	log.Print("Handling webhook request ...")
+	//log.Print("Handling webhook request ...")
 
 	var writeErr error
 	if bytes, err := doServeAdmitFunc(w, r, adm); err != nil {
@@ -135,7 +140,7 @@ func serveAdmitFunc(w http.ResponseWriter, r *http.Request, adm AdmitFunc) {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, writeErr = w.Write([]byte(err.Error()))
 	} else {
-		log.Print("Webhook request handled successfully")
+		//log.Print("Webhook request handled successfully")
 		_, writeErr = w.Write(bytes)
 	}
 

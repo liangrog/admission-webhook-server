@@ -27,6 +27,6 @@ heritage: "{{ .Release.Service }}"
 webhook server name
 */}}
 {{- define "helper.webhook-server-name" }}
-{{- template "helper.fullname" . }}.{{ .Release.Namespace }}.svc
+{{- .Values.service.name }}.{{ .Release.Namespace }}.svc
 {{- end }}
 

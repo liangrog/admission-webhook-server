@@ -10,7 +10,7 @@ webhooks:
   clientConfig: 
     service:
       namespace: {{ .Release.Namespace }}
-      name: {{ template "helper.fullname" . }}
+      name: {{ .Values.service.name }}
       path: '/{{ default "mutate" .Values.basePathOverride }}/{{ default "pod-nodes-selector" .Values.podNodesSelectorPathOverride }}' 
     caBundle: '{{ .Files.Get "ssl/ca.crt" | b64enc }}'
   rules: 
