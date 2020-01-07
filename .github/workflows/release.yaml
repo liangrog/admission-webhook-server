@@ -18,11 +18,14 @@ jobs:
         uses: actions/checkout@v1
       - name: build binary and image
         run: make docker
+      - name: Get tag version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: tag image
-        run: docker tag liangrog/admission-webhook-server:latest liangrog/admission-webhook-server:${{ github.ref }}
+        run: docker tag liangrog/admission-webhook-server:latest liangrog/admission-webhook-server:${{ steps.get_version.outputs.VERSION }}
       - name: docker login
         run: docker login -u liangrog -p ${{ secrets.dockerhub }}
       - name: push tag latest 
         run: docker push liangrog/admission-webhook-server:latest
       - name: push tag versioned
-        run: docker push liangrog/admission-webhook-server:${{ github.ref }}
+        run: docker push liangrog/admission-webhook-server:${{ steps.get_version.outputs.VERSION }}
