@@ -18,6 +18,8 @@ The repo also includes a Helm chart for easy deployment to your Kubernetes clust
 ## Installation
 Firstly you need to determine what your SSL CN is. The self-signed ssl CN follows the format of `[service name].[namespace].svc`. For example, the default service name is `admission-webhook` (It can be changed in helm value). You want to deploy to namespace tools. The CN will be `admission-webhook.tools.svc`. Below steps will use this CN for demo purpose.
 
+Secondly you need to update helm value `podNodesSelectorConfig` in `chart/values.yaml` so it can use the value to mutate the pods. 
+
 Note: below example using Helm v3. However the chart is compatible with helm version older than v3.
 
 ```sh
