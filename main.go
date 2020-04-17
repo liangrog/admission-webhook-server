@@ -9,20 +9,21 @@ import (
 	"github.com/liangrog/admission-webhook-server/pkg/utils"
 )
 
-// TLS secrets
-const (
-	tlsDir  = `/run/secrets/tls`
-	tlsCert = `tls.crt`
-	tlsKey  = `tls.key`
-)
-
 // Port to listen to
 const (
 	ENV_LISTEN_PORT = "LISTEN_PORT"
 	listenPort      = ":8443"
 )
 
+// TLS secrets
+const (
+	ENV_TLS_DIR = "TLS_DIR"
+	tlsCert     = `tls.crt`
+	tlsKey      = `tls.key`
+)
+
 func main() {
+	tlsDir := utils.GetEnvVal(ENV_TLS_DIR, "/run/secrets/tls")
 	cert := filepath.Join(tlsDir, tlsCert)
 	key := filepath.Join(tlsDir, tlsKey)
 
