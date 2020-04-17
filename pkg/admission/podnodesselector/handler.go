@@ -36,6 +36,9 @@ const (
 
 	namespaceSeperator      = ";"
 	namespaceLabelSeperator = ":"
+
+	ENV_IGNORED_NAMESPACES = "IGNORED_NAMESPACES"
+	ENV_DEFAULT_LABELS     = "DEFAULT_LABELS"
 )
 
 var (
@@ -83,31 +86,42 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 		log.Fatal(err)
 	}
 
-	if selectors != nil {
-		if labelSet, ok := selectors[req.Namespace]; ok {
-			op := "replace"
-			if pod.Spec.NodeSelector == nil {
-				op = "add"
+	if ignoreNamespace(req.Namespace, strings.Split(utils.GetEnvVal(ENV_IGNORED_NAMESPACES, ""), ",")) {
+		log.Printf("Namespace %s is configured to be ignored, so applying no labels\n", req.Namespace)
+	} else {
+		labelSet := labels.Set{}
+		labelsDefinedForNamespace := false
+		if labelSet, labelsDefinedForNamespace = selectors[req.Namespace]; labelsDefinedForNamespace {
+			log.Printf("Applying isolation labels to %s", req.Namespace)
+		} else {
+			log.Printf("Applying default labels to %s\n", req.Namespace)
+			labelSet, err = labels.ConvertSelectorToLabelsMap(utils.GetEnvVal(ENV_DEFAULT_LABELS, ""))
+			if err != nil {
+				log.Fatal(err)
 			}
-
-			if labels.Conflicts(labelSet, labels.Set(pod.Spec.NodeSelector)) {
-				return patches, errors.New(fmt.Sprintf("pod node label selector conflicts with its namespace node label selector for pod %s", podName))
-			}
-
-			podNodeSelectorLabels := labels.Merge(labelSet, labels.Set(pod.Spec.NodeSelector))
-
-			patches = append(patches, admit.PatchOperation{
-				Op:    op,
-				Path:  "/spec/nodeSelector",
-				Value: podNodeSelectorLabels,
-			})
-
-			log.Printf("%s processed pod %s with selectors: %s",
-				handlerName,
-				podName,
-				fmt.Sprintf("%v", podNodeSelectorLabels),
-			)
 		}
+		op := "replace"
+		if pod.Spec.NodeSelector == nil {
+			op = "add"
+		}
+
+		if labels.Conflicts(labelSet, labels.Set(pod.Spec.NodeSelector)) {
+			return patches, errors.New(fmt.Sprintf("pod node label selector conflicts with its namespace node label selector for pod %s", podName))
+		}
+
+		podNodeSelectorLabels := labels.Merge(labelSet, labels.Set(pod.Spec.NodeSelector))
+
+		patches = append(patches, admit.PatchOperation{
+			Op:    op,
+			Path:  "/spec/nodeSelector",
+			Value: podNodeSelectorLabels,
+		})
+
+		log.Printf("%s processed pod %s with selectors: %s",
+			handlerName,
+			podName,
+			fmt.Sprintf("%v", podNodeSelectorLabels),
+		)
 	}
 
 	return patches, nil
@@ -138,4 +152,13 @@ func getConfiguredSelectorMap() (map[string]labels.Set, error) {
 	}
 
 	return selectors, nil
+}
+
+func ignoreNamespace(lookup string, ignored []string) bool {
+	for _, val := range ignored {
+		if val == lookup {
+			return true
+		}
+	}
+	return false
 }
