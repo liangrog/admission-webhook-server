@@ -36,6 +36,8 @@ const (
 
 	namespaceSeperator      = ";"
 	namespaceLabelSeperator = ":"
+
+	ENV_IGNORE_PODS_WITH_LABELS = "IGNORE_PODS_WITH_LABELS"
 )
 
 var (
@@ -76,6 +78,20 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 	podName := strings.TrimSpace(pod.Name + " " + pod.GenerateName)
 
 	var patches []admit.PatchOperation
+
+	// If pod has atleast one label present that makes it not eligible for adding node selector then return
+	labelsToIgnore, err := getLabelsToIgnore()
+	if err != nil {
+		log.Fatal(err)
+	}
+	for k, v := range labelsToIgnore {
+		if val, ok := pod.Labels[k]; ok {
+			if val == v {
+				log.Printf("Not adding node selectors as pod has label : %s=%s", k, v)
+				return patches, nil
+			}
+		}
+	}
 
 	// Get configuration
 	selectors, err := getConfiguredSelectorMap()
@@ -138,4 +154,23 @@ func getConfiguredSelectorMap() (map[string]labels.Set, error) {
 	}
 
 	return selectors, nil
+}
+
+// Get map of labels that disallows Node Selector to be added to pods (if label is present on pod)
+func getLabelsToIgnore() (labels.Set, error) {
+
+	// Don't process if no labels are provided
+	if len(os.Getenv(ENV_IGNORE_PODS_WITH_LABELS)) == 0 {
+		return nil, nil
+	}
+
+	log.Printf("Labels to ignore : %s", os.Getenv(ENV_IGNORE_PODS_WITH_LABELS))
+
+	// Converts string in format (x=y,a=b) to map[string]->string
+	labelsMap, err := labels.ConvertSelectorToLabelsMap(os.Getenv(ENV_IGNORE_PODS_WITH_LABELS))
+	if err != nil {
+		return nil, err
+	}
+
+	return labelsMap, nil
 }

@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"html"
 	"log"
 	"net/http"
 	"path/filepath"
+	"time"
 
 	"github.com/liangrog/admission-webhook-server/pkg/admission/podnodesselector"
 	"github.com/liangrog/admission-webhook-server/pkg/utils"
@@ -23,26 +26,36 @@ const (
 )
 
 func main() {
-	cert := filepath.Join(tlsDir, tlsCert)
-	key := filepath.Join(tlsDir, tlsKey)
 
 	mux := http.NewServeMux()
 
-	log.Print("Registering handlers...")
+	log.Print("Registering handlers ...")
 	registerAllHandlers(mux)
 
-	// Config server
+	// Configure server
 	server := &http.Server{
-		Addr:    utils.GetEnvVal(ENV_LISTEN_PORT, listenPort),
-		Handler: mux,
+		Addr:           utils.GetEnvVal(ENV_LISTEN_PORT, listenPort),
+		Handler:        mux,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20, // 1048576
 	}
 
-	// Serve
-	log.Print("Starting admission webhook server...")
+	// Start server
+	log.Print("Starting admission webhook server ...")
+
+	cert := filepath.Join(tlsDir, tlsCert)
+	key := filepath.Join(tlsDir, tlsKey)
 	log.Fatal(server.ListenAndServeTLS(cert, key))
 }
 
-// Register all admission handlers
+// handleRoot handles root path (i.e. /)
+func handleRoot(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "hello from admission webhook server , you have hit : %q", html.EscapeString(r.URL.Path))
+}
+
+// registerAllHandlers registers handlers for all path
 func registerAllHandlers(mux *http.ServeMux) {
+	mux.HandleFunc("/", handleRoot)
 	podnodesselector.Register(mux)
 }
