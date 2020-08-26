@@ -5,7 +5,6 @@
 package podnodesselector
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,8 +12,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/liangrog/admission-webhook-server/pkg/admission/admit"
-	"github.com/liangrog/admission-webhook-server/pkg/utils"
+	"github.com/trilogy-group/admission-webhook-server/pkg/admission/admit"
+	"github.com/trilogy-group/admission-webhook-server/pkg/utils"
+	"github.com/trilogy-group/admission-webhook-server/pkg/utils/k8s"
 	"k8s.io/api/admission/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -37,12 +37,18 @@ const (
 	namespaceSeperator      = ";"
 	namespaceLabelSeperator = ":"
 
-	ENV_IGNORE_PODS_WITH_LABELS = "IGNORE_PODS_WITH_LABELS"
+	ENV_IGNORE_PODS_WITH_LABELS          = "IGNORE_PODS_WITH_LABELS"
+	ENV_NAMESPACE_ANNOTATIONS_TO_PROCESS = "NAMESPACE_ANNOTATIONS_TO_PROCESS"
 )
 
 var (
 	podResource = metav1.GroupVersionResource{Version: "v1", Resource: "pods"}
 )
+
+func init() {
+	log.Printf("Annotations to process : %s", os.Getenv(ENV_NAMESPACE_ANNOTATIONS_TO_PROCESS))
+	log.Printf("Labels to ignore : %s", os.Getenv(ENV_IGNORE_PODS_WITH_LABELS))
+}
 
 // Register handler to server
 func Register(mux *http.ServeMux) {
@@ -79,7 +85,9 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 
 	var patches []admit.PatchOperation
 
-	// If pod has atleast one label present that makes it not eligible for adding node selector then return
+	// If pod has atleast one label present that belongs to list of labels to ignore
+	// Then it does not make it eligible for adding node selector
+	// So we return immediately
 	labelsToIgnore, err := getLabelsToIgnore()
 	if err != nil {
 		log.Fatal(err)
@@ -93,37 +101,55 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 		}
 	}
 
-	// Get configuration
-	selectors, err := getConfiguredSelectorMap()
+	// Get which annotations are to be processed from pod's namespace
+	// Put values of annotations that are present as Node Selectors
+	annotationsToProcess, err := getAnnotationsToProcess()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if selectors != nil {
-		if labelSet, ok := selectors[req.Namespace]; ok {
-			op := "replace"
-			if pod.Spec.NodeSelector == nil {
-				op = "add"
+	nsAnnotations, err := k8s.GetNamespaceAnnotations(req.Namespace)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	labelSet := make(labels.Set)
+	for i, k := range annotationsToProcess {
+		if val, ok := nsAnnotations[k]; ok {
+			curSet, err := labels.ConvertSelectorToLabelsMap(val)
+			if err != nil {
+				log.Fatal(err)
 			}
-
-			if labels.Conflicts(labelSet, labels.Set(pod.Spec.NodeSelector)) {
-				return patches, errors.New(fmt.Sprintf("pod node label selector conflicts with its namespace node label selector for pod %s", podName))
+			if labels.Conflicts(curSet, labelSet) {
+				return patches, fmt.Errorf("There are conflicting labels specified across namespace annotations")
 			}
-
-			podNodeSelectorLabels := labels.Merge(labelSet, labels.Set(pod.Spec.NodeSelector))
-
-			patches = append(patches, admit.PatchOperation{
-				Op:    op,
-				Path:  "/spec/nodeSelector",
-				Value: podNodeSelectorLabels,
-			})
-
-			log.Printf("%s processed pod %s with selectors: %s",
-				handlerName,
-				podName,
-				fmt.Sprintf("%v", podNodeSelectorLabels),
-			)
+			labelSet = labels.Merge(curSet, labelSet)
 		}
+	}
+
+	if labelSet != nil {
+		op := "replace"
+		if pod.Spec.NodeSelector == nil {
+			op = "add"
+		}
+
+		if labels.Conflicts(labelSet, labels.Set(pod.Spec.NodeSelector)) {
+			return patches, fmt.Errorf("pod node label selector conflicts with its namespace node label selector for pod %s", podName)
+		}
+
+		podNodeSelectorLabels := labels.Merge(labelSet, labels.Set(pod.Spec.NodeSelector))
+
+		patches = append(patches, admit.PatchOperation{
+			Op:    op,
+			Path:  "/spec/nodeSelector",
+			Value: podNodeSelectorLabels,
+		})
+
+		log.Printf("%s processed pod %s with selectors: %s",
+			handlerName,
+			podName,
+			fmt.Sprintf("%v", podNodeSelectorLabels),
+		)
 	}
 
 	return patches, nil
@@ -164,8 +190,6 @@ func getLabelsToIgnore() (labels.Set, error) {
 		return nil, nil
 	}
 
-	log.Printf("Labels to ignore : %s", os.Getenv(ENV_IGNORE_PODS_WITH_LABELS))
-
 	// Converts string in format (x=y,a=b) to map[string]->string
 	labelsMap, err := labels.ConvertSelectorToLabelsMap(os.Getenv(ENV_IGNORE_PODS_WITH_LABELS))
 	if err != nil {
@@ -173,4 +197,16 @@ func getLabelsToIgnore() (labels.Set, error) {
 	}
 
 	return labelsMap, nil
+}
+
+// getAnnotationsToProcess returns list of annotations that is to be watched on namespace
+func getAnnotationsToProcess() ([]string, error) {
+
+	// Don't process if it is not set
+	if len(os.Getenv(ENV_NAMESPACE_ANNOTATIONS_TO_PROCESS)) == 0 {
+		return nil, nil
+	}
+
+	return strings.Split(os.Getenv(ENV_NAMESPACE_ANNOTATIONS_TO_PROCESS), ",")
+
 }
