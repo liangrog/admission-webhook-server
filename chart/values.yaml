@@ -14,7 +14,14 @@
 #
 # Examples:
 #   devel: node-role.kubernetes.io/development=true, beta.kubernetes.io/instance-type=t3.large
-podNodesSelectorConfig: 
+podNodesSelectorConfig:
+
+# Configuration for ignoring pods for podnodesselector. 
+# Pods having specified labels will be ignored and nodeSelector field will not be added to them.
+# labels are set here following the format:
+# key1=val1, key2=val2
+# Note: Lables seperate by ,
+ignorePodsWithLabels: 
 
 service:
   # the service is important. It forms part of the CN for SSL certificate. 
@@ -27,6 +34,6 @@ replicas: 1
 strategy: 
   type: RollingUpdate
 
-image: liangrog/admission-webhook-server
-imageTag: latest
+image: 082830052325.dkr.ecr.us-east-1.amazonaws.com/devflows/admission-webhook-server
+imageTag: v1
 imagePullPolicy: Always 

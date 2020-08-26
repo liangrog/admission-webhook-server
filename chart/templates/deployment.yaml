@@ -31,6 +31,8 @@ spec:
         {{- end }}
         - name: POD_NODES_SELECTOR_CONFIG
           value: {{ .Values.podNodesSelectorConfig | quote}}
+        - name: IGNORE_PODS_WITH_LABELS
+          value: {{ .Values.ignorePodsWithLabels | quote }}
         ports:
         - name: https
           containerPort: 8443
