@@ -6,7 +6,7 @@ description:
 keywords:
 - admission controller
 - webhook
-home: https://github.com/liangrog/admission-webhook-server
+home: https://github.com/trilogy-group/admission-webhook-server
 sources:
-- https://github.com/liangrog/admission-webhook-server
+- https://github.com/trilogy-group/admission-webhook-server
 engine: gotpl

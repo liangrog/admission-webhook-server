@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/liangrog/admission-webhook-server/pkg/admission/podnodesselector"
-	"github.com/liangrog/admission-webhook-server/pkg/utils"
+	"github.com/trilogy-group/admission-webhook-server/pkg/admission/podnodesselector"
+	"github.com/trilogy-group/admission-webhook-server/pkg/utils"
 )
 
 // TLS secrets

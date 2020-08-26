@@ -11,7 +11,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/liangrog/admission-webhook-server/pkg/utils"
+	"github.com/trilogy-group/admission-webhook-server/pkg/utils"
 	"k8s.io/api/admission/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

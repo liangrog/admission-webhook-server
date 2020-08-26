@@ -29,8 +29,8 @@ spec:
         - name: POD_NODES_SELECTOR_PATH
           value: {{ .Values.podNodesSelectorPathOverride | quote }}
         {{- end }}
-        - name: POD_NODES_SELECTOR_CONFIG
-          value: {{ .Values.podNodesSelectorConfig | quote}}
+        - name: NAMESPACE_ANNOTATIONS_TO_PROCESS
+          value: {{ .Values.namespaceAnnotationsToProcess | quote}}
         - name: IGNORE_PODS_WITH_LABELS
           value: {{ .Values.ignorePodsWithLabels | quote }}
         ports:

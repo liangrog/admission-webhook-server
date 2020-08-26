@@ -8,20 +8,18 @@
 # PodNodesSelector   
 # Override podnodeselector handler path. Default to pod-nodes-selector
 #podNodesSelectorPathOverride: 
-# Confiruation for podnodesselector. The namespace and labels are set here following the format:
-#   namespace: key=label,key=label; namespace2: key=label
-# Note: Multiple namespaces seperate by ;
-#
+# Confiruation for which annotations to be read from namespace and assign its value as nodeselectors. 
+# The annotations to process are seperated by comma (,)
 # Examples:
-#   devel: node-role.kubernetes.io/development=true, beta.kubernetes.io/instance-type=t3.large
-podNodesSelectorConfig:
+#   devflows/node-selector,z
+namespaceAnnotationsToProcess: "devflows/node-selector,z"
 
 # Configuration for ignoring pods for podnodesselector. 
 # Pods having specified labels will be ignored and nodeSelector field will not be added to them.
 # labels are set here following the format:
 # key1=val1, key2=val2
 # Note: Lables seperate by ,
-ignorePodsWithLabels: 
+ignorePodsWithLabels: "fargate=true"
 
 service:
   # the service is important. It forms part of the CN for SSL certificate. 

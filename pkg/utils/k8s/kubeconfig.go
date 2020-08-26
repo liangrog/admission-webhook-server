@@ -66,7 +66,7 @@ func GetKubeConfig(mode KubeConfigMode) (*rest.Config, error) {
 	return config, err
 }
 
-//GetKubeConfigBasedOnEnv Returns config based on KUBE_CONFIG_MODE env var
+//GetKubeConfigBasedOnEnv returns config based on KUBE_CONFIG_MODE env var
 func GetKubeConfigBasedOnEnv() (*rest.Config, error) {
 
 	var kubeConfigMode KubeConfigMode

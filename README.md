@@ -18,7 +18,7 @@ The repo also includes a Helm chart for easy deployment to your Kubernetes clust
 ## Installation
 Firstly you need to determine what your SSL CN is. The self-signed ssl CN follows the format of `[service name].[namespace].svc`. For example, the default service name is `admission-webhook` (It can be changed in helm value). You want to deploy to namespace tools. The CN will be `admission-webhook.tools.svc`. Below steps will use this CN for demo purpose.
 
-Secondly you need to update helm value `podNodesSelectorConfig` and `ignorePodsWithLabels` in `chart/values.yaml` so it can use the value to mutate the pods. 
+Secondly you need to update helm value `namespaceAnnotationsToProcess` and `ignorePodsWithLabels` in `chart/values.yaml` so it can use the value to mutate the pods. 
 
 Note: below example using Helm v3. However the chart is compatible with helm version older than v3.
 
@@ -40,7 +40,7 @@ The following table lists the configuration parameters for the helm chart.
 | nameOverride  | Override general resource name   |   |
 | basePathOverride  | Url base path   | mutate  | 
 | podNodesSelectorPathOverride  | Url sub path for podnodesselector  | pod-nodes-selector  |
-| podNodesSelectorConfig  | Configuration for podnodesselector. The namespace and labels are set here following the format: namespace: key=label,key=label; namespace2: key=label. Multiple namespaces seperate by ";". Example: devel: node-role.kubernetes.io/development=true, beta.kubernetes.io/instance-type=t3.large  |   |
+| namespaceAnnotationsToProcess  | Confiruation for which annotations to be read from namespace of pod and assign its value as nodeselectors for pod. The annotations to process are seperated by comma (,) Examples: devflows/node-selector,z  |   |
 | ignorePodsWithLabels | Configuration for disallowing podnodeselector from adding node selectors to pods. Specify labels to match (one out of all match would do) here : Example: fargate=true | |
 | service.name  | Name of the service. It forms part of the ssl CN  | admission-webhook  |
 | service.annotations  | Anotation for the service  | {} |
