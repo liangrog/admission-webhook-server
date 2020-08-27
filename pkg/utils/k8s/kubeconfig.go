@@ -79,7 +79,7 @@ func GetKubeConfigBasedOnEnv() (*rest.Config, error) {
 	case FromClusterToken.String():
 		kubeConfigMode = FromClusterToken
 	default:
-		kubeConfigMode = FromClusterToken
+		kubeConfigMode = FromFile
 	}
 
 	return GetKubeConfig(kubeConfigMode)
