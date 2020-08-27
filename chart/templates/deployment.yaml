@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "helper.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
 {{- include "helper.labels" . | indent 4 }}
 spec:
@@ -42,7 +43,10 @@ spec:
         - name: tls
           mountPath: /run/secrets/tls
           readOnly: true
+      serviceAccountName: {{ template "helper.fullname" . }}-sa 
       volumes:
       - name: tls
         secret:
           secretName: {{ template "helper.fullname" . }}-tls
+      nodeSelector:
+        node-type/critical: "true"

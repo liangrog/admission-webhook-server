@@ -23,13 +23,25 @@ Secondly you need to update helm value `namespaceAnnotationsToProcess` and `igno
 Note: below example using Helm v3. However the chart is compatible with helm version older than v3.
 
 ```sh
-$ git clone https://github.com/liangrog/admission-webhook-server
+$ git clone https://github.com/trilogy-group/admission-webhook-server
 $ cd admission-webhook-server
 $
 $ sh ssl.sh admission-webhook.tools.svc
 $
 $ cd chart
-$ helm install admission-webhook-server .
+$ helm install . --name  admission-webhook-server --namespace tools
+```
+
+You can also generate YAML files using `helm template` and commit those files to `gitops` or perform `kubectl apply`
+
+```sh
+$ git clone https://github.com/trilogy-group/admission-webhook-server
+$ cd admission-webhook-server
+$
+$ sh ssl.sh admission-webhook.tools.svc
+$
+$ cd chart
+$ helm template . -n admission-webhook-server --namespace tools --output-dir admission-webhook-server
 ```
 
 ## Helm 

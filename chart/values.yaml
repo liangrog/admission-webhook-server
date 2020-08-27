@@ -12,7 +12,7 @@
 # The annotations to process are seperated by comma (,)
 # Examples:
 #   devflows/node-selector,z
-namespaceAnnotationsToProcess: "devflows/node-selector,z"
+namespaceAnnotationsToProcess: "devflows/node-selector"
 
 # Configuration for ignoring pods for podnodesselector. 
 # Pods having specified labels will be ignored and nodeSelector field will not be added to them.
@@ -32,6 +32,6 @@ replicas: 1
 strategy: 
   type: RollingUpdate
 
-image: 082830052325.dkr.ecr.us-east-1.amazonaws.com/devflows/admission-webhook-server
-imageTag: v1
+image: 652819854130.dkr.ecr.us-east-1.amazonaws.com/trilogy-group/admission-webhook-server
+imageTag: master-ed8ede1
 imagePullPolicy: Always 
