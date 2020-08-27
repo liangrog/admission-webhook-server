@@ -25,6 +25,9 @@ clean:
 fast:
 	go build -o ${APPNAME} ${LDFLAGS}
 
+devhub_binary:
+	GOPATH=/Users/utsavchokshi/go CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o target/admitCtlr main.go
+
 docker_binary:
 	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o $(APPNAME) ${LDFLAGS} .
 
