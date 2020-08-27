@@ -41,5 +41,8 @@ run:
   runCommand: null
   userName: root
 ports: []
-envs: []
+envs:
+  - name: qa
+    default: true
+    vars: []
 storage: []
