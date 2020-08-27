@@ -1,0 +1,56 @@
+version: v4.0
+navigator:
+  name: Utsav Chokshi
+  email: utsav.chokshi@codenation.co.in
+repo:
+  companyName: CodeNation
+  productName: devflows
+  repoUrl: 'https://github.com/trilogy-group/admission-webhook-server'
+  repoType: Deployable service
+  branch: master
+build:
+  techStack: Go
+  os: Ubuntu 16.04
+  toolchainVersion: Go 1.14
+  tool: go
+  preBuildCommand: apt-get update && apt-get install -y build-essential curl
+  buildCommand: GOPATH=/gopath CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o target/admitCtlr main.go
+test:
+  utFramework: testing
+  preTestCommand: null
+  testCommand: echo skip
+package:
+  packageTool: go
+  packageCommand: echo N/A
+  artifactDir: ./target
+  artifactUploadCommand: echo "empty artifactUploadCommand"
+deploy:
+  serviceName: admission-webhook-server
+  deploymentCheck: '#ToBeFilled'
+  stickySessions: null
+  canUseLb: true
+  stablePersistence: null
+  fixedNetworkIdentifier: null
+ports:
+  - name: http-8000
+    number: '8000'
+    protocol: HTTP
+    public: true
+    path: /
+run:
+  dockerized: true
+  os: null
+  image: ''
+  runtimeEnv: null
+  installCommand: null
+  installDir: ''
+  runCommand: null
+  userName: root
+envs:
+  - name: qa
+    default: true
+    vars:
+      - key: AWS_DEFAULT_REGION
+        kind: config
+        value: us-east-1
+storage: []
