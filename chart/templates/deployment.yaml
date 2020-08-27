@@ -33,6 +33,8 @@ spec:
           value: {{ .Values.namespaceAnnotationsToProcess | quote}}
         - name: IGNORE_PODS_WITH_LABELS
           value: {{ .Values.ignorePodsWithLabels | quote }}
+        - name: KUBE_CONFIG_MODE
+          value: "IN_CLUSTER"
         ports:
         - name: https
           containerPort: 8443

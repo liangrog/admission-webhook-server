@@ -8,7 +8,7 @@
 # PodNodesSelector   
 # Override podnodeselector handler path. Default to pod-nodes-selector
 #podNodesSelectorPathOverride: 
-# Confiruation for which annotations to be read from namespace and assign its value as nodeselectors. 
+# Confiruation for which annotations to be read from namespace of pod and assign its value as nodeselectors. 
 # The annotations to process are seperated by comma (,)
 # Examples:
 #   devflows/node-selector,z
