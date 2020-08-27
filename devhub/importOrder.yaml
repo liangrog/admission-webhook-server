@@ -1,45 +1,43 @@
 version: v4.0
 navigator:
-  name: Utsav Chokshi
-  email: utsav.chokshi@codenation.co.in
+    name: Utsav Chokshi
+    email: utsav.chokshi@codenation.co.in
 repo:
-  companyName: CodeNation
-  productName: devflows
-  repoUrl: 'https://github.com/trilogy-group/admission-webhook-server'
-  repoType: Deployable service
-  branch: master
+    companyName: CodeNation
+    productName: devflows
+    repoUrl: https://github.com/trilogy-group/admission-webhook-server
+    repoType: Deployable service
+    githubTokenSecretId: ""
+    branch: master
+buildDeps: []
 build:
-  techStack: Go
-  os: Ubuntu 16.04
-  toolchainVersion: Go 1.14
-  tool: go
-  preBuildCommand: apt-get update && apt-get install -y build-essential curl
-  buildCommand: GOPATH=/gopath CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o target/admitCtlr main.go
+    techStack: Go
+    os: Ubuntu 16.04
+    image: ""
+    toolchainVersion: Go 1.14
+    tool: go
+    preBuildCommand: apt-get update && apt-get install -y build-essential curl
+    buildCommand: GOPATH=/gopath CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o target/admitCtlr main.go
 test:
-  utFramework: testing
-  preTestCommand: null
-  testCommand: echo skip
+    utFramework: testing
+    testCommand: echo skip
 package:
-  packageTool: go
-  packageCommand: echo N/A
-  artifactDir: ./target
-  artifactUploadCommand: echo "empty artifactUploadCommand"
+    packageTool: go
+    packageCommand: echo N/A
+    artifactDir: ./target
+    artifactUploadCommand: echo "empty artifactUploadCommand"
 deploy:
-  serviceName: admission-webhook-server
-  deploymentCheck: '#ToBeFilled'
-  stickySessions: null
-  canUseLb: true
-  stablePersistence: null
-  fixedNetworkIdentifier: null
+    serviceName: admission-webhook-server
+    deploymentCheck: '#ToBeFilled'
+    stickySessions: ""
+    canUseLb: "true"
+    stablePersistence: ""
+    fixedNetworkIdentifier: ""
 run:
-  dockerized: true
-  os: null
-  image: ''
-  runtimeEnv: null
-  installCommand: null
-  installDir: ''
-  runCommand: null
-  userName: root
+    dockerized: true
+    os: ""
+    image: ""
+    userName: root
 ports: []
 envs:
   - name: qa
