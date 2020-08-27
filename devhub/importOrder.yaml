@@ -31,12 +31,6 @@ deploy:
   canUseLb: true
   stablePersistence: null
   fixedNetworkIdentifier: null
-ports:
-  - name: http-8000
-    number: '8000'
-    protocol: HTTP
-    public: true
-    path: /
 run:
   dockerized: true
   os: null
@@ -46,11 +40,6 @@ run:
   installDir: ''
   runCommand: null
   userName: root
-envs:
-  - name: qa
-    default: true
-    vars:
-      - key: AWS_DEFAULT_REGION
-        kind: config
-        value: us-east-1
+ports: []
+envs: []
 storage: []
