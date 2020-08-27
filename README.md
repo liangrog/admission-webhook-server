@@ -32,6 +32,8 @@ $ cd chart
 $ helm install . --name  admission-webhook-server --namespace tools
 ```
 
+OR
+
 You can also generate YAML files using `helm template` and commit those files to `gitops` or perform `kubectl apply`
 
 ```sh
