@@ -19,7 +19,7 @@ namespaceAnnotationsToProcess: "devflows/node-selector"
 # labels are set here following the format:
 # key1=val1, key2=val2
 # Note: Lables seperate by ,
-ignorePodsWithLabels: "fargate=true"
+ignorePodsWithLabels: "fargate=true,eventing.knative.dev/broker=default"
 
 service:
   # the service is important. It forms part of the CN for SSL certificate. 
