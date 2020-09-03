@@ -28,16 +28,19 @@ const (
 	ENV_POD_NODES_SELECTOR_PATH = "POD_NODES_SELECTOR_PATH"
 	podNodesSelectorPath        = "pod-nodes-selector"
 
-	namespaceAnnotationSeperator = ","
+	namespaceAnnotationSeperator  = ","
+	blacklistedNamespaceSeperator = ","
 
 	ENV_IGNORE_PODS_WITH_LABELS          = "IGNORE_PODS_WITH_LABELS"
 	ENV_NAMESPACE_ANNOTATIONS_TO_PROCESS = "NAMESPACE_ANNOTATIONS_TO_PROCESS"
+	ENV_BLACKLISTED_NAMESPACES           = "BLACKLISTED_NAMESPACES"
 )
 
 var (
-	podResource          = metav1.GroupVersionResource{Version: "v1", Resource: "pods"}
-	labelsToIgnore       labels.Set
-	annotationsToProcess []string
+	podResource           = metav1.GroupVersionResource{Version: "v1", Resource: "pods"}
+	labelsToIgnore        labels.Set
+	annotationsToProcess  []string
+	blacklistedNamespaces []string
 )
 
 func init() {
@@ -50,6 +53,10 @@ func init() {
 	}
 
 	if annotationsToProcess, err = getAnnotationsToProcess(); err != nil {
+		panic(err.Error())
+	}
+
+	if blacklistedNamespaces, err = getBlacklistedNamespaces(); err != nil {
 		panic(err.Error())
 	}
 }
@@ -89,13 +96,21 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 
 	var patches []admit.PatchOperation
 
+	// If pod belongs to blacklisted namespaces then return immediately
+	for _, item := range blacklistedNamespaces {
+		if item == req.Namespace {
+			log.Printf("Not adding node selectors as pod : %s belongs to namespace : %s", podName, req.Namespace)
+			return patches, nil
+		}
+	}
+
 	// If pod has atleast one label present that belongs to list of labels to ignore
 	// Then it does not make it eligible for adding node selector
 	// So we return immediately
 	for k, v := range labelsToIgnore {
 		if val, ok := pod.Labels[k]; ok {
 			if val == v {
-				log.Printf("Not adding node selectors as pod has label : %s=%s", k, v)
+				log.Printf("Not adding node selectors as pod : %s has label : %s=%s", podName, k, v)
 				return patches, nil
 			}
 		}
@@ -178,4 +193,17 @@ func getAnnotationsToProcess() ([]string, error) {
 	annotations := strings.Split(os.Getenv(ENV_NAMESPACE_ANNOTATIONS_TO_PROCESS), namespaceAnnotationSeperator)
 
 	return annotations, nil
+}
+
+// getBlacklistedNamespaces returns list of namespaces that are blacklisted so pods belong to this namespaces won't be processed
+func getBlacklistedNamespaces() ([]string, error) {
+
+	// Don't process if it is not set
+	if os.Getenv(ENV_NAMESPACE_ANNOTATIONS_TO_PROCESS) == "" {
+		return nil, nil
+	}
+
+	namespaces := strings.Split(os.Getenv(ENV_BLACKLISTED_NAMESPACES), blacklistedNamespaceSeperator)
+
+	return namespaces, nil
 }

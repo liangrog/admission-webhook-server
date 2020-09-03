@@ -55,6 +55,7 @@ The following table lists the configuration parameters for the helm chart.
 | basePathOverride  | Url base path   | mutate  | 
 | podNodesSelectorPathOverride  | Url sub path for podnodesselector  | pod-nodes-selector  |
 | namespaceAnnotationsToProcess  | Confiruation for which annotations to be read from namespace of pod and assign its value as nodeselectors for pod. The annotations to process are seperated by comma (,) Examples: x/y,a/b  |  devflows/node-selector |
+| blacklistedNamespaces | Configuration for disallowing podnodeselector from adding node selectors to pods if it belongs to one of these namespaces. Namespaces are separated by comma (,) : Example: ns-1,ns-2 | devflows-utilities-master |
 | ignorePodsWithLabels | Configuration for disallowing podnodeselector from adding node selectors to pods. Specify labels to match (one out of all match would do) here : Example: l=m | fargate=true,eventing.knative.dev/broker=default |
 | service.name  | Name of the service. It forms part of the ssl CN  | admission-webhook  |
 | service.annotations  | Anotation for the service  | {} |

@@ -31,7 +31,9 @@ spec:
           value: {{ .Values.podNodesSelectorPathOverride | quote }}
         {{- end }}
         - name: NAMESPACE_ANNOTATIONS_TO_PROCESS
-          value: {{ .Values.namespaceAnnotationsToProcess | quote}}
+          value: {{ .Values.namespaceAnnotationsToProcess | quote }}
+        - name: BLACKLISTED_NAMESPACES
+          value: {{ .Values.blacklistedNamespaces | quote }}
         - name: IGNORE_PODS_WITH_LABELS
           value: {{ .Values.ignorePodsWithLabels | quote }}
         - name: KUBE_CONFIG_MODE

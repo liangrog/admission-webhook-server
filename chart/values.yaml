@@ -8,13 +8,21 @@
 # PodNodesSelector   
 # Override podnodeselector handler path. Default to pod-nodes-selector
 #podNodesSelectorPathOverride: 
+
 # Confiruation for which annotations to be read from namespace of pod and assign its value as nodeselectors. 
-# The annotations to process are seperated by comma (,)
-# Examples:
-#   devflows/node-selector,z
+# Annotations are set here following the format :
+# annotation1,annotation2
+# Note: Annotations seperate by ,
 namespaceAnnotationsToProcess: "devflows/node-selector"
 
-# Configuration for ignoring pods for podnodesselector. 
+### Configuration for ignoring pods for podnodesselector ### 
+
+# Pods belonging to specified namespaces will be ignored and nodeSelector field will not be added to them.
+# Namespaces are set here following the format :
+# ns1, ns2
+# Note: Namespaces seperate by ,
+blacklistedNamespaces: "devflows-utilities-master"
+
 # Pods having specified labels will be ignored and nodeSelector field will not be added to them.
 # labels are set here following the format:
 # key1=val1, key2=val2
