@@ -21,7 +21,7 @@ namespaceAnnotationsToProcess: "devflows/node-selector"
 # Namespaces are set here following the format :
 # ns1, ns2
 # Note: Namespaces seperate by ,
-blacklistedNamespaces: "devflows-utilities-master"
+blacklistedNamespaces: ""
 
 # Pods having specified labels will be ignored and nodeSelector field will not be added to them.
 # labels are set here following the format:

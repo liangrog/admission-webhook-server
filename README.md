@@ -49,18 +49,18 @@ $ helm template . -n admission-webhook-server --namespace tools --output-dir adm
 ## Helm 
 The following table lists the configuration parameters for the helm chart.
 
-| Parameter  | Description  | Default  | 
-|---|---|---|
-| nameOverride  | Override general resource name   |   |
-| basePathOverride  | Url base path   | mutate  | 
-| podNodesSelectorPathOverride  | Url sub path for podnodesselector  | pod-nodes-selector  |
-| namespaceAnnotationsToProcess  | Confiruation for which annotations to be read from namespace of pod and assign its value as nodeselectors for pod. The annotations to process are seperated by comma (,) Examples: x/y,a/b  |  devflows/node-selector |
-| blacklistedNamespaces | Configuration for disallowing podnodeselector from adding node selectors to pods if it belongs to one of these namespaces. Namespaces are separated by comma (,) : Example: ns-1,ns-2 | devflows-utilities-master |
-| ignorePodsWithLabels | Configuration for disallowing podnodeselector from adding node selectors to pods. Specify labels to match (one out of all match would do) here : Example: l=m | fargate=true,eventing.knative.dev/broker=default |
-| service.name  | Name of the service. It forms part of the ssl CN  | admission-webhook  |
-| service.annotations  | Anotation for the service  | {} |
-| replicas | Number of replicas  | 1  |
-| strategy.type  | Type of update strategy  | RollingUpdate  |
-| image  | Docker image name  | liangrog/admission-webhook-server  |
-| imageTag  | Docker image tag  | latest  |
-| imagePullPolicy  | Docker image pull policy  | Always  |
+| Parameter  | Description  | Default  | Purpose |
+|---|---|---|---|
+| nameOverride  | Override general resource name   |   | |
+| basePathOverride  | Url base path   | mutate  | |
+| podNodesSelectorPathOverride  | Url sub path for podnodesselector  | pod-nodes-selector  | |
+| namespaceAnnotationsToProcess  | Confiruation for which annotations to be read from namespace of pod and assign its value as nodeselectors for pod. The annotations to process are seperated by comma (,) Examples: x/y,a/b  |  devflows/node-selector | |
+| blacklistedNamespaces | Configuration for disallowing podnodeselector from adding node selectors to pods if it belongs to one of these namespaces. Namespaces are separated by comma (,) : Example: ns-1,ns-2 | |Even though Devflows features are implemented by flows in devflows-utilities-master we don't want to mark them critical because flows can handle node failures and don't need to be marked critical. Also, these flows can actually be very disruptive to the really critical processes because the number of live pods in these flows can fluctuate widely and increase CPU pressure on the critical nodes. |
+| ignorePodsWithLabels | Configuration for disallowing podnodeselector from adding node selectors to pods. Specify labels to match (one out of all match would do) here : Example: l=m | fargate=true,eventing.knative.dev/broker=default | |
+| service.name  | Name of the service. It forms part of the ssl CN  | admission-webhook  | |
+| service.annotations  | Anotation for the service  | {} | |
+| replicas | Number of replicas  | 1  | |
+| strategy.type  | Type of update strategy  | RollingUpdate  | |
+| image  | Docker image name  | liangrog/admission-webhook-server  | |
+| imageTag  | Docker image tag  | latest  | |
+| imagePullPolicy  | Docker image pull policy  | Always  | |
