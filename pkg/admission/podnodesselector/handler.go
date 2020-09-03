@@ -45,6 +45,7 @@ var (
 
 func init() {
 	log.Printf("Annotations to process : %s", os.Getenv(ENV_NAMESPACE_ANNOTATIONS_TO_PROCESS))
+	log.Printf("Blacklisted namespaces : %s", os.Getenv(ENV_BLACKLISTED_NAMESPACES))
 	log.Printf("Labels to ignore : %s", os.Getenv(ENV_IGNORE_PODS_WITH_LABELS))
 
 	var err error
