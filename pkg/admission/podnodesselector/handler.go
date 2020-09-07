@@ -100,9 +100,17 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 
 	var patches []admit.PatchOperation
 
-	// If pod belongs to blacklisted namespaces then return immediately
-	for _, item := range blacklistedNamespaces {
-		if item == req.Namespace {
+	// If pod is being controlled by Daemonset then do not add node selectors
+	for _, ownerReference := range pod.GetOwnerReferences() {
+		if ownerReference.Kind == "DaemonSet" {
+			log.Printf("Not adding node selectors as pod : %s is controlled by DaemonSet", podName)
+			return patches, nil
+		}
+	}
+
+	// If pod belongs to blacklisted namespaces then do not add node selectors
+	for _, namespace := range blacklistedNamespaces {
+		if namespace == req.Namespace {
 			log.Printf("Not adding node selectors as pod : %s belongs to namespace : %s", podName, req.Namespace)
 			return patches, nil
 		}
@@ -110,7 +118,6 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 
 	// If pod has atleast one label present that belongs to list of labels to ignore
 	// Then it does not make it eligible for adding node selector
-	// So we return immediately
 	for k, v := range labelsToIgnore {
 		if val, ok := pod.Labels[k]; ok {
 			if v.Has(val) {
