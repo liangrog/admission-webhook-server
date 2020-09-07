@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/scylladb/go-set/strset"
 	"github.com/trilogy-group/admission-webhook-server/pkg/admission/admit"
 	"github.com/trilogy-group/admission-webhook-server/pkg/utils"
 	"github.com/trilogy-group/admission-webhook-server/pkg/utils/k8s"
@@ -21,6 +22,9 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
+//LabelsMap is a map of label-key:[value1, value2]
+type LabelsMap map[string]*strset.Set
+
 const (
 	handlerName = "PodNodesSelector"
 
@@ -28,8 +32,7 @@ const (
 	ENV_POD_NODES_SELECTOR_PATH = "POD_NODES_SELECTOR_PATH"
 	podNodesSelectorPath        = "pod-nodes-selector"
 
-	namespaceAnnotationSeperator  = ","
-	blacklistedNamespaceSeperator = ","
+	commaSeperator = ","
 
 	ENV_IGNORE_PODS_WITH_LABELS          = "IGNORE_PODS_WITH_LABELS"
 	ENV_NAMESPACE_ANNOTATIONS_TO_PROCESS = "NAMESPACE_ANNOTATIONS_TO_PROCESS"
@@ -38,7 +41,7 @@ const (
 
 var (
 	podResource           = metav1.GroupVersionResource{Version: "v1", Resource: "pods"}
-	labelsToIgnore        labels.Set
+	labelsToIgnore        LabelsMap
 	annotationsToProcess  []string
 	blacklistedNamespaces []string
 )
@@ -110,8 +113,8 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 	// So we return immediately
 	for k, v := range labelsToIgnore {
 		if val, ok := pod.Labels[k]; ok {
-			if val == v {
-				log.Printf("Not adding node selectors as pod : %s has label : %s=%s", podName, k, v)
+			if v.Has(val) {
+				log.Printf("Not adding node selectors as pod : %s has label : %s=%s", podName, k, val)
 				return patches, nil
 			}
 		}
@@ -168,19 +171,19 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 }
 
 // getLabelsToIgnore returns map of labels that disallows Node Selector to be added to pods
-func getLabelsToIgnore() (labels.Set, error) {
+func getLabelsToIgnore() (LabelsMap, error) {
 
 	// Don't process if it is not set
 	if os.Getenv(ENV_IGNORE_PODS_WITH_LABELS) == "" {
 		return nil, nil
 	}
 
-	labelSet, err := labels.ConvertSelectorToLabelsMap(os.Getenv(ENV_IGNORE_PODS_WITH_LABELS))
+	labelsMap, err := convertToLabelsMap(os.Getenv(ENV_IGNORE_PODS_WITH_LABELS))
 	if err != nil {
 		return nil, err
 	}
 
-	return labelSet, nil
+	return labelsMap, nil
 }
 
 // getAnnotationsToProcess returns list of annotations that is to be watched on namespace
@@ -191,7 +194,7 @@ func getAnnotationsToProcess() ([]string, error) {
 		return nil, nil
 	}
 
-	annotations := strings.Split(os.Getenv(ENV_NAMESPACE_ANNOTATIONS_TO_PROCESS), namespaceAnnotationSeperator)
+	annotations := strings.Split(os.Getenv(ENV_NAMESPACE_ANNOTATIONS_TO_PROCESS), commaSeperator)
 
 	return annotations, nil
 }
@@ -204,7 +207,34 @@ func getBlacklistedNamespaces() ([]string, error) {
 		return nil, nil
 	}
 
-	namespaces := strings.Split(os.Getenv(ENV_BLACKLISTED_NAMESPACES), blacklistedNamespaceSeperator)
+	namespaces := strings.Split(os.Getenv(ENV_BLACKLISTED_NAMESPACES), commaSeperator)
 
 	return namespaces, nil
+}
+
+//convertToLabelsMap converts comma separated labels (k1=v1,k2=v2,k1=v3) to LabelsMap (k1=[v1,v3],k2=[v2]))
+func convertToLabelsMap(expression string) (LabelsMap, error) {
+
+	labelsMap := LabelsMap{}
+
+	if len(expression) == 0 {
+		return labelsMap, nil
+	}
+
+	labels := strings.Split(expression, ",")
+	for _, label := range labels {
+		l := strings.Split(label, "=")
+		if len(l) != 2 {
+			return labelsMap, fmt.Errorf("invalid expression: %s", l)
+		}
+		key := strings.TrimSpace(l[0])
+		value := strings.TrimSpace(l[1])
+
+		if set, ok := labelsMap[key]; ok {
+			set.Add(value)
+		} else {
+			labelsMap[key] = strset.New(value)
+		}
+	}
+	return labelsMap, nil
 }
