@@ -38,9 +38,7 @@ run:
     os: ""
     image: ""
     userName: root
-ports: []
 envs:
   - name: qa
     default: true
     vars: []
-storage: []
