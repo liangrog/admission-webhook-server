@@ -42,3 +42,9 @@ envs:
   - name: qa
     default: true
     vars: []
+ports:
+  - name: dummyPort
+    number: 8000
+    protocol: HTTP
+    public: false
+    path: /
