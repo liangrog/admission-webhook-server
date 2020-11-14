@@ -1,4 +1,10 @@
 #call example .\ssl.ps1 -CommonName admission-webhook.tools.svc
+#Need to install openssql before, the best way is:
+# 1. install chocolatey (https://chocolatey.org/) 
+#       Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+# 2. install openssl
+#       choco install -y openssl 
+
 param ([Parameter(Mandatory)] [string] $CommonName, [int] $ExpirationDays=3650)
 $secretDir="chart/ssl"
 mkdir -Force -Path $secretDir
