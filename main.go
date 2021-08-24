@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"time"
 
+	namespaceannotationshandler "github.com/trilogy-group/admission-webhook-server/pkg/admission/annotations/namespace"
+	podannotationshandler "github.com/trilogy-group/admission-webhook-server/pkg/admission/annotations/pod"
 	"github.com/trilogy-group/admission-webhook-server/pkg/admission/podnodesselector"
 	"github.com/trilogy-group/admission-webhook-server/pkg/utils"
 )
@@ -58,4 +60,6 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 func registerAllHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/", handleRoot)
 	podnodesselector.Register(mux)
+	namespaceannotationshandler.Register(mux)
+	podannotationshandler.Register(mux)
 }

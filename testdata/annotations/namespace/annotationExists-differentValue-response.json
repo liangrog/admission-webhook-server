@@ -1,0 +1,11 @@
+{
+  "response": {
+    "allowed": false,
+    "patch": null,
+    "status": {
+      "metadata": {},
+      "message": "NamespaceAnnotationsHandler: existing annotations conflict with desired annotations - existing: map[iam.amazonaws.com/permitted:different_than_expected initial:annotation], desired: map[iam.amazonaws.com/permitted:.*]"
+    },
+    "uid": "40d3b420-54cf-42ff-87e9-9e1e68effc83"
+  }
+}

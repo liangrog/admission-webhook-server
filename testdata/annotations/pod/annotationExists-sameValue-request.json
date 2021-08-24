@@ -1,0 +1,37 @@
+{
+  "request": {
+    "uid": "40d3b420-54cf-42ff-87e9-9e1e68effc83",
+    "resource": {
+      "group": "",
+      "version": "v1",
+      "resource": "pods"
+    },
+    "name": "alex-test",
+    "operation": "CREATE",
+    "object": {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "iam.amazonaws.com/role": "arn:aws:iam::346945241475:role/test-role",
+          "initial": "annotation"
+        },
+        "name": "alex-test-pod",
+        "namespace": "alex-test"
+      },
+      "spec": {
+        "containers": [
+          {
+            "command": [
+              "/home/aws/aws/env/bin/aws",
+              "sts",
+              "get-caller-identity"
+            ],
+            "image": "fstab/aws-cli",
+            "name": "aws-cli"
+          }
+        ]
+      }
+    }
+  }
+}

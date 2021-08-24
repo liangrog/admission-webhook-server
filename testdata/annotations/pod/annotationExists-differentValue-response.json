@@ -1,0 +1,11 @@
+{
+  "response": {
+    "allowed": false,
+    "patch": null,
+    "status": {
+      "metadata": {},
+      "message": "PodAnnotationsHandler: existing annotations conflict with desired annotations - existing: map[iam.amazonaws.com/role:arn:aws:iam::346945241475:role/different-than-expected-role initial:annotation], desired: map[iam.amazonaws.com/role:arn:aws:iam::346945241475:role/test-role]"
+    },
+    "uid": "40d3b420-54cf-42ff-87e9-9e1e68effc83"
+  }
+}
