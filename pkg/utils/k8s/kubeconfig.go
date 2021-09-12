@@ -21,7 +21,6 @@ const (
 )
 
 func (mode KubeConfigMode) String() string {
-
 	modes := [...]string{
 		"IN_CLUSTER",
 		"FROM_FILE",
@@ -32,12 +31,10 @@ func (mode KubeConfigMode) String() string {
 
 //GetKubeConfig returns config based on mode
 func GetKubeConfig(mode KubeConfigMode) (*rest.Config, error) {
-
 	var config *rest.Config
 	var err error = nil
 
 	switch mode {
-
 	case InCluster:
 		config, err = rest.InClusterConfig()
 
@@ -68,7 +65,6 @@ func GetKubeConfig(mode KubeConfigMode) (*rest.Config, error) {
 
 //GetKubeConfigBasedOnEnv returns config based on KUBE_CONFIG_MODE env var
 func GetKubeConfigBasedOnEnv() (*rest.Config, error) {
-
 	var kubeConfigMode KubeConfigMode
 
 	switch os.Getenv("KUBE_CONFIG_MODE") {

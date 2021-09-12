@@ -142,13 +142,26 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 				return patches, fmt.Errorf("Could not process value of annotation : %s for namespace : %s", k, req.Namespace)
 			}
 			if labels.Conflicts(curSet, labelSet) {
-				return patches, fmt.Errorf("There are conflicting labels specified across namespace annotations for %s", req.Namespace)
+				return patches,
+					fmt.Errorf("There are conflicting labels specified across namespace annotations for %s", req.Namespace)
 			}
 			labelSet = labels.Merge(curSet, labelSet)
 		}
 	}
 
 	// Prepare a patch that adds labels map as node selectors
+	patches, shouldReturn, returnValue, returnValue1 := addNodeLabels(labelSet, pod, patches, podName)
+	if shouldReturn {
+		return returnValue, returnValue1
+	}
+
+	return patches, nil
+}
+
+func addNodeLabels(labelSet labels.Set,
+	pod corev1.Pod,
+	patches []admit.PatchOperation,
+	podName string) ([]admit.PatchOperation, bool, []admit.PatchOperation, error) {
 	if labelSet != nil {
 		op := "replace"
 		if pod.Spec.NodeSelector == nil {
@@ -156,7 +169,8 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 		}
 
 		if labels.Conflicts(labelSet, labels.Set(pod.Spec.NodeSelector)) {
-			return patches, fmt.Errorf("pod node label selector conflicts with its namespace node label selector for pod %s", podName)
+			return nil, true, patches, fmt.Errorf(`pod node label selector conflicts with its 
+			namespace node label selector for pod %s`, podName)
 		}
 
 		podNodeSelectorLabels := labels.Merge(labelSet, labels.Set(pod.Spec.NodeSelector))
@@ -173,13 +187,11 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 			fmt.Sprintf("%v", podNodeSelectorLabels),
 		)
 	}
-
-	return patches, nil
+	return patches, false, nil, nil
 }
 
 // getLabelsToIgnore returns map of labels that disallows Node Selector to be added to pods
 func getLabelsToIgnore() (LabelsMap, error) {
-
 	// Don't process if it is not set
 	if os.Getenv(ENV_IGNORE_PODS_WITH_LABELS) == "" {
 		return nil, nil
@@ -195,7 +207,6 @@ func getLabelsToIgnore() (LabelsMap, error) {
 
 // getAnnotationsToProcess returns list of annotations that is to be watched on namespace
 func getAnnotationsToProcess() ([]string, error) {
-
 	// Don't process if it is not set
 	if os.Getenv(ENV_NAMESPACE_ANNOTATIONS_TO_PROCESS) == "" {
 		return nil, nil
@@ -206,9 +217,9 @@ func getAnnotationsToProcess() ([]string, error) {
 	return annotations, nil
 }
 
-// getBlacklistedNamespaces returns list of namespaces that are blacklisted so pods belong to this namespaces won't be processed
+// getBlacklistedNamespaces returns list of namespaces
+// that are blacklisted so pods belong to this namespaces won't be processed
 func getBlacklistedNamespaces() ([]string, error) {
-
 	// Don't process if it is not set
 	if os.Getenv(ENV_NAMESPACE_ANNOTATIONS_TO_PROCESS) == "" {
 		return nil, nil
@@ -221,7 +232,6 @@ func getBlacklistedNamespaces() ([]string, error) {
 
 //convertToLabelsMap converts comma separated labels (k1=v1,k2=v2,k1=v3) to LabelsMap (k1=[v1,v3],k2=[v2]))
 func convertToLabelsMap(expression string) (LabelsMap, error) {
-
 	labelsMap := LabelsMap{}
 
 	if len(expression) == 0 {
@@ -231,6 +241,7 @@ func convertToLabelsMap(expression string) (LabelsMap, error) {
 	labels := strings.Split(expression, ",")
 	for _, label := range labels {
 		l := strings.Split(label, "=")
+		//nolint
 		if len(l) != 2 {
 			return labelsMap, fmt.Errorf("invalid expression: %s", l)
 		}

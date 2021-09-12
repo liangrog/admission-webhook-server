@@ -2,12 +2,13 @@ package namespace
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/trilogy-group/admission-webhook-server/pkg/admission/admit"
 	"github.com/trilogy-group/admission-webhook-server/pkg/admission/annotations"
 	"k8s.io/api/admission/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"net/http"
 )
 
 const (

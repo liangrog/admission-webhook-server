@@ -28,13 +28,13 @@ const (
 )
 
 func main() {
-
 	mux := http.NewServeMux()
 
 	log.Print("Registering handlers ...")
 	registerAllHandlers(mux)
 
 	// Configure server
+	//nolint
 	server := &http.Server{
 		Addr:           utils.GetEnvVal(ENV_LISTEN_PORT, listenPort),
 		Handler:        mux,

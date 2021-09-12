@@ -3,14 +3,15 @@ package annotations
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/trilogy-group/admission-webhook-server/pkg/admission/admit"
-	"k8s.io/api/admission/v1beta1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/trilogy-group/admission-webhook-server/pkg/admission/admit"
+	"k8s.io/api/admission/v1beta1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 )
 
 type ResourceDeserializer func([]byte) (metav1.ObjectMetaAccessor, error)

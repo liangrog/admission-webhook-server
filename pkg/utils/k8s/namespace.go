@@ -10,7 +10,6 @@ import (
 var clientset *kubernetes.Clientset
 
 func init() {
-
 	config, err := GetKubeConfigBasedOnEnv()
 	if err != nil {
 		panic(err.Error())
@@ -24,7 +23,6 @@ func init() {
 
 // GetNamespaceAnnotations returns all annotations of namespace
 func GetNamespaceAnnotations(namespace string) (map[string]string, error) {
-
 	ns, err := clientset.CoreV1().Namespaces().Get(namespace, metav1.GetOptions{})
 
 	if err != nil {

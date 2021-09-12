@@ -3,19 +3,20 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/google/go-cmp/cmp"
-	"github.com/trilogy-group/admission-webhook-server/pkg/admission/admit"
-	"github.com/trilogy-group/admission-webhook-server/pkg/admission/annotations/namespace"
-	"github.com/trilogy-group/admission-webhook-server/pkg/admission/annotations/pod"
 	"io/ioutil"
-	"k8s.io/api/admission/v1beta1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
+	"github.com/trilogy-group/admission-webhook-server/pkg/admission/admit"
+	"github.com/trilogy-group/admission-webhook-server/pkg/admission/annotations/namespace"
+	"github.com/trilogy-group/admission-webhook-server/pkg/admission/annotations/pod"
+	"k8s.io/api/admission/v1beta1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 const (
@@ -234,7 +235,6 @@ func decodePatch(admissionReviewJSON []byte) ([]byte, error) {
 		return nil, err
 	}
 	return admissionReviewWithDecodedPatchJSON, nil
-
 }
 
 type AdmissionReviewWithDecodedPatch struct {
