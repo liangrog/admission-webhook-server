@@ -28,7 +28,7 @@ $ cd admission-webhook-server
 $
 $ sh ssl.sh admission-webhook.tools.svc
 $
-$ cd chart
+$ cd helm
 $ helm install admission-webhook-server .
 ```
 
