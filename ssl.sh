@@ -4,16 +4,13 @@ cn="$1"
 
 secret_dir="helm/ssl"
 expiration="3650"
-mkdir -p helm/ssl
+mkdir -p ${secret_dir}
 
-chmod 0700 "$secret_dir"
-cd "$secret_dir"
-
-rm -rf *
-
+chmod 0700 "${secret_dir}"
+cd "${secret_dir}"
 # Generate the CA cert and private key
 openssl req -nodes -new -x509 -days $expiration -keyout ca.key -out ca.crt -subj "/CN=Admission Controller Webhook Server CA"
-
+rm server.pem
 cat ca.key > server.pem
 cat ca.crt >> server.pem
 
